@@ -22,9 +22,23 @@ public class BeamLiteNetworkManager : NetworkManager
         public Vector3 AlignmentTranslation;
         public float AlignmentRotation;
         public string localPlayerName;
+        public float localplayerHipsize;
+        public float localplayerBellysize;
+        public float localplayerBreastsize;
+        public float localplayerShouldersize;
     }
 
     public string LocalPlayerName = string.Empty;
+    
+    public float LocalplayerHipsize;
+    
+    public float LocalplayerBellysize;
+    
+    public float LocalplayerBreastsize;
+    
+    public float LocalplayerShouldersize;
+
+    public int LocalplayerTexture;
 
     public GameObject networkPlayer;
 
@@ -43,6 +57,7 @@ public class BeamLiteNetworkManager : NetworkManager
     public BeamLiteNetworkDiscovery NetworkDiscovery;
     public bool ServerAddressIsSet = false;
 
+    private GameObject _localplayer;
 
     private short playerCounter = 0;
     private Vector3 _alignmentTranslation;
@@ -153,14 +168,37 @@ public class BeamLiteNetworkManager : NetworkManager
 
         NetworkServer.AddPlayerForConnection(conn, player, playerCounter);
 
-        player.GetComponent<NetworkPlayer>().RpcSetupPlayer(_alignmentTranslation, _alignmentRotation, playerType, playerCounter, MarkerOffset.position, localPlayerName);
+        player.GetComponent<NetworkPlayer>().RpcSetupPlayer(_alignmentTranslation, _alignmentRotation, playerType, playerCounter, MarkerOffset.position, localPlayerName, LocalplayerHipsize,LocalplayerBellysize,LocalplayerBreastsize,LocalplayerShouldersize, LocalplayerTexture);
 
         player.GetComponent<NetworkPlayer>().PlayerName = localPlayerName;
+
+        player.GetComponent<NetworkPlayer>().Hipsize = LocalplayerHipsize;
+        player.GetComponent<NetworkPlayer>().Bellysize = LocalplayerBellysize;
+        player.GetComponent<NetworkPlayer>().Breastsize = LocalplayerBreastsize;
+        player.GetComponent<NetworkPlayer>().Shouldersize = LocalplayerShouldersize;
+        player.GetComponent<NetworkPlayer>().TextureNum = LocalplayerTexture;
 
         if (playerType == Utils.PlayerType.HoloLens) playerCounter++;
     }
 
+    internal void UpdateplayerTexture()
+    {
+        if (_localplayer)
+        {
+            _localplayer.GetComponent<NetworkPlayer>().TextureNum = LocalplayerTexture;
+        }
+    }
 
+    public void UpdateplayerSizes()
+    {
+        if (_localplayer)
+        {
+            _localplayer.GetComponent<NetworkPlayer>().Hipsize = LocalplayerHipsize;
+            _localplayer.GetComponent<NetworkPlayer>().Bellysize = LocalplayerBellysize;
+            _localplayer.GetComponent<NetworkPlayer>().Breastsize = LocalplayerBreastsize;
+            _localplayer.GetComponent<NetworkPlayer>().Shouldersize = LocalplayerShouldersize;
+        }
+    }
 
     public override void OnClientConnect(NetworkConnection conn)
     {
@@ -173,6 +211,10 @@ public class BeamLiteNetworkManager : NetworkManager
         msg.playerControllerId = 1;
         msg.PlayerType = Utils.CurrentPlayerType;
         msg.localPlayerName = LocalPlayerName;
+        msg.localplayerHipsize = LocalplayerHipsize;
+        msg.localplayerBreastsize = LocalplayerBreastsize;
+        msg.localplayerShouldersize = LocalplayerShouldersize;
+
         if (msg.PlayerType == Utils.PlayerType.HoloLens)
         {
             msg.AlignmentTranslation = _alignmentTranslation;

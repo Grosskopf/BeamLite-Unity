@@ -36,6 +36,28 @@ public class NetworkPlayer : NetworkBehaviour
     [SyncVar]
     public string PlayerName;
 
+    [SyncVar]
+
+    public float Hipsize;
+
+    [SyncVar]
+
+    public float Bellysize;
+
+    [SyncVar]
+
+    public float Breastsize;
+
+    [SyncVar]
+
+    public float Shouldersize;
+
+
+    [SyncVar]
+
+    public int TextureNum;
+    
+
     public GameObject Hand1;
     public GameObject Hand2;
 
@@ -78,13 +100,13 @@ public class NetworkPlayer : NetworkBehaviour
         GlobalSyncingManager = GameObject.Find("GlobalSyncingManager").GetComponent<GlobalSyncingManager>();
 
         //on vr spawn for every remote player an avatar
-        if (Utils.CurrentPlayerType == Utils.PlayerType.VR && !isLocalPlayer)
+        if ((Utils.IsVR) && !isLocalPlayer)
         {
             SpawnAvatar(true);
         }
         else
         {
-            if(Utils.CurrentPlayerType == Utils.PlayerType.HoloLens && this.PlayerType == Utils.PlayerType.VR)
+            if(Utils.CurrentPlayerType == Utils.PlayerType.HoloLens && (this.PlayerType == Utils.PlayerType.Rift || this.PlayerType == Utils.PlayerType.Vive || this.PlayerType==Utils.PlayerType.VR))
             {
                 SpawnAvatar(true);
             }
@@ -188,31 +210,31 @@ public class NetworkPlayer : NetworkBehaviour
         GlobalSyncingManager.Todo3State = state;
     }
 
-    public void ToggleTouch(bool isTouching)
+    public void SetTouch(bool isTouching)
     {
-        CmdToggleTouch(isTouching, this.netId);
+        CmdSetTouch(isTouching, this.netId);
     }
 
     [Command]
-    private void CmdToggleTouch(bool isTouching, NetworkInstanceId networkInstanceId)
+    private void CmdSetTouch(bool isTouching, NetworkInstanceId networkInstanceId)
     {
         if (GlobalSyncingManager.NetworkPlayerIdOfWritingPlayer <= 0 && isTouching == true)
         {
             GlobalSyncingManager.NetworkPlayerIdOfWritingPlayer = (int)networkInstanceId.Value;
-            RpcToggleTouch(isTouching, (int)networkInstanceId.Value);
+            RpcSetTouch(isTouching, (int)networkInstanceId.Value);
         }
         else if (isTouching == false && GlobalSyncingManager.NetworkPlayerIdOfWritingPlayer == networkInstanceId.Value)
         {
             GlobalSyncingManager.NetworkPlayerIdOfWritingPlayer = -1;
-            RpcToggleTouch(isTouching, -1);
+            RpcSetTouch(isTouching, -1);
         }
 
     }
 
     [ClientRpc]
-    private void RpcToggleTouch(bool isTouching, int networkInstanceId)
+    private void RpcSetTouch(bool isTouching, int networkInstanceId)
     {
-        Whiteboards[0].GetComponent<Whiteboard>().ToggleTouch(isTouching);
+        Whiteboards[0].GetComponent<Whiteboard>().SetTouching(isTouching);
     }
 
     public void SetTouchPosition(float x, float y, Color color, int penSize)
@@ -231,7 +253,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         Whiteboards[0].GetComponent<Whiteboard>().SetTouchPosition(x, y, color, penSize);
     }
-
+    
     public void ClearWhiteboard()
     {
         CmdClearWhiteboard();
@@ -360,13 +382,13 @@ public class NetworkPlayer : NetworkBehaviour
     /// <param name="playerType"></param>
     /// <param name="playerCounter"></param>
     [ClientRpc]
-    public void RpcSetupPlayer(Vector3 alignmentTranslation, float alignmentYRotation, Utils.PlayerType playerType, int playerCounter, Vector3 markerOffset, string playerName)
+    public void RpcSetupPlayer(Vector3 alignmentTranslation, float alignmentYRotation, Utils.PlayerType playerType, int playerCounter, Vector3 markerOffset, string playerName, float hipsize, float bellysize, float breastsize, float shouldersize, int texturenum)
     {
-        SetupPlayer(alignmentTranslation, alignmentYRotation, playerType, playerCounter, markerOffset, playerName);
+        SetupPlayer(alignmentTranslation, alignmentYRotation, playerType, playerCounter, markerOffset, playerName, hipsize, bellysize, breastsize, shouldersize, texturenum);
     }
 
     [Client]
-    public void SetupPlayer(Vector3 alignmentTranslation, float alignmentYRotation, Utils.PlayerType playerType, int playerCounter, Vector3 markerOffset, string playerName)
+    public void SetupPlayer(Vector3 alignmentTranslation, float alignmentYRotation, Utils.PlayerType playerType, int playerCounter, Vector3 markerOffset, string playerName, float hipsize, float bellysize, float breastsize, float shouldersize, int texturenum)
     {
         AlignmentTranslation = alignmentTranslation;
         AlignmentRotation = alignmentYRotation;
@@ -374,6 +396,11 @@ public class NetworkPlayer : NetworkBehaviour
         PlayerCounter = playerCounter;
         MarkerOffset = markerOffset;
         PlayerName = playerName;
+        Hipsize = hipsize;
+        Bellysize = bellysize;
+        Breastsize = breastsize;
+        Shouldersize = shouldersize;
+        TextureNum = texturenum;
     }
 
     [Client]

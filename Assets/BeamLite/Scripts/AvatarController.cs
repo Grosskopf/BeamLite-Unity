@@ -11,7 +11,7 @@ public class AvatarController : MonoBehaviour {
     public Vector3 LocalAlignmentTranslation;
     public float LocalAlignmentRotation;
     public GameObject HoloLensAvatar;
-    public GameObject HoloLensAvatar2;
+    public GameObject RiftAvatar;
     public GameObject ViveAvatar;
     public GameObject BodyPrefab;
     public Utils.PlayerType PlayerType;
@@ -27,11 +27,21 @@ public class AvatarController : MonoBehaviour {
     public Color NotSpeakingColor;
     public Color SpeakingColor;
 
+    public Texture2D[] possible_textures;
+    
+    private Transform _HipTransform;
+    private Transform _BellyTransform;
+    private Transform _BreastTransform;
+    private Transform _ShoulderTransform;
+    private Transform _NeckTransform;
+
     private NetworkPlayer _networkPlayer;
     private GameObject _body;
+    private Renderer _bodyRenderer;
     private GameObject _rightHand;
     private GameObject _leftHand;
     private Vector3 MarkerOffset;
+    private int _currentTexture=0;
 
 
 
@@ -48,11 +58,24 @@ public class AvatarController : MonoBehaviour {
         MarkerOffset = _networkPlayer.MarkerOffset;
         TextFieldForPlayerName.text = playerName;
 
-        if (PlayerType == Utils.PlayerType.VR)
+        if (PlayerType == Utils.PlayerType.Vive)
         {
-            if(showHLAvatar)
+            if (showHLAvatar)
             {
                 Instantiate(ViveAvatar, gameObject.transform);
+                _body = Instantiate(BodyPrefab, gameObject.transform);
+
+                _rightHand = Instantiate(HandPrefabR);
+                _rightHand.SetActive(false);
+
+                _leftHand = Instantiate(HandPrefabL);
+                _leftHand.SetActive(false);
+            }
+        } else if (PlayerType == Utils.PlayerType.Rift)
+        {
+            if (showHLAvatar)
+            {
+                Instantiate(RiftAvatar, gameObject.transform);
                 _body = Instantiate(BodyPrefab, gameObject.transform);
 
                 _rightHand = Instantiate(HandPrefabR);
@@ -66,14 +89,7 @@ public class AvatarController : MonoBehaviour {
         {
             if (showHLAvatar)
             {
-                if (playerCounter % 2 == 0)
-                {
-                    Instantiate(HoloLensAvatar, gameObject.transform);
-                }
-                else
-                {
-                    Instantiate(HoloLensAvatar2, gameObject.transform);
-                }
+                Instantiate(HoloLensAvatar, gameObject.transform);
                 _body = Instantiate(BodyPrefab, gameObject.transform);
 
                 _rightHand = Instantiate(HandPrefabHololens);
@@ -89,11 +105,16 @@ public class AvatarController : MonoBehaviour {
             }
         }
 
-
+        _HipTransform = _body.transform.Find("Armature/Beine/Hüfte").transform;
+        _BellyTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch").transform;
+        _BreastTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust").transform;
+        _ShoulderTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust/Schulter").transform;
+        _NeckTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust/Schulter/Hals").transform;
+        _bodyRenderer = _body.transform.Find("Body").GetComponent<Renderer>();
         //var comms = FindObjectOfType<DissonanceComms>();
         //comms.OnPlayerJoinedSession += Comms_OnPlayerJoinedSession;
     }
-
+    
     //private void Comms_OnPlayerJoinedSession(VoicePlayerState obj)
     //{
     //    var BeamLiteHlapiPlayer = NetworkPlayerGameObject.GetComponent<BeamLiteHlapiPlayer>();
@@ -204,6 +225,31 @@ public class AvatarController : MonoBehaviour {
                 else
                 {
                     _leftHand.SetActive(false);
+                }
+            }
+        }
+        if (_body != null)
+        {
+            if (_networkPlayer.TextureNum != _currentTexture)
+            {
+                _currentTexture = _networkPlayer.TextureNum;
+                _bodyRenderer.material.SetTexture("_MainTex", possible_textures[_currentTexture]);
+            }
+            _HipTransform.localScale = new Vector3(_networkPlayer.Hipsize, 1, _networkPlayer.Hipsize);
+            if (_networkPlayer.Hipsize != 0)
+            {
+                _BellyTransform.localScale = new Vector3(_networkPlayer.Bellysize / _networkPlayer.Hipsize, 1, _networkPlayer.Bellysize / _networkPlayer.Hipsize);
+                if (_networkPlayer.Bellysize != 0)
+                {
+                    _BreastTransform.localScale = new Vector3(_networkPlayer.Breastsize / _networkPlayer.Bellysize, 1, _networkPlayer.Breastsize / _networkPlayer.Bellysize);
+                    if (_networkPlayer.Breastsize != 0)
+                    {
+                        _ShoulderTransform.localScale = new Vector3(_networkPlayer.Shouldersize / _networkPlayer.Breastsize, 1, _networkPlayer.Shouldersize / _networkPlayer.Breastsize);
+                        if (_networkPlayer.Shouldersize != 0)
+                        {
+                            _NeckTransform.localScale = new Vector3(1 / _networkPlayer.Shouldersize, 1, 1 / _networkPlayer.Shouldersize);
+                        }
+                    }
                 }
             }
         }
