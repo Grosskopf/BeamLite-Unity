@@ -117,26 +117,48 @@ public class CharactercreationScreen : MonoBehaviour {
 
     }
 
+    private void Buttonpress(string name)
+    {
+        if (name == "OK") {
+            this.gameObject.SetActive(false);
+            NetworkManager.JoinMatch();
+        }
+        else if (name == "Left")
+        {
+            NetworkManager.LocalplayerTexture = (NetworkManager.LocalplayerTexture - 1) % (possible_textures.Length);
+            if (_body)
+            {
+                _bodyRenderer.material.SetTexture("_MainTex", possible_textures[NetworkManager.LocalplayerTexture]);
+            }
+            NetworkManager.UpdateplayerTexture();
+
+        }
+        else if(name== "Right")
+        {
+            NetworkManager.LocalplayerTexture = (NetworkManager.LocalplayerTexture + 1) % (possible_textures.Length);
+            if (_body)
+            {
+                _bodyRenderer.material.SetTexture("_MainTex", possible_textures[NetworkManager.LocalplayerTexture]);
+            }
+            NetworkManager.UpdateplayerTexture();
+
+        }
+    }
+
+    public void ButtonClickedHololens(string name)
+    {
+        Buttonpress(name);
+    }
     private void OKpressed(object sender, InteractableObjectEventArgs e)
     {
-        this.gameObject.SetActive(false);
+        Buttonpress("OK");
     }
     private void Leftpressed(object sender, InteractableObjectEventArgs e)
     {
-        NetworkManager.LocalplayerTexture = (NetworkManager.LocalplayerTexture - 1) % (possible_textures.Length);
-        if (_body)
-        {
-            _bodyRenderer.material.SetTexture("_MainTex", possible_textures[NetworkManager.LocalplayerTexture]);
-        }
-        NetworkManager.UpdateplayerTexture();
+        Buttonpress("Left");
     }
     private void Rightpressed(object sender, InteractableObjectEventArgs e)
     {
-        NetworkManager.LocalplayerTexture = (NetworkManager.LocalplayerTexture + 1) % (possible_textures.Length);
-        if (_body)
-        {
-            _bodyRenderer.material.SetTexture("_MainTex", possible_textures[NetworkManager.LocalplayerTexture]);
-        }
-        NetworkManager.UpdateplayerTexture();
+        Buttonpress("Right");
     }
 }

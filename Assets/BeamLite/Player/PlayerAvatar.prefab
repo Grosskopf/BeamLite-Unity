@@ -209,9 +209,12 @@ MonoBehaviour:
   ViveAvatar: {fileID: 100008, guid: f0838bdc4b3f10647bf3c8f93da42a97, type: 3}
   BodyPrefab: {fileID: 0}
   PlayerType: 0
-  HandPrefabL: {fileID: 100000, guid: fc90321000ccae64c822db8014bcf8cb, type: 3}
-  HandPrefabR: {fileID: 100000, guid: 0723d953388fcad4fac41779862f6400, type: 3}
-  HandPrefabHololens: {fileID: 100000, guid: 0723d953388fcad4fac41779862f6400, type: 3}
+  HandPrefabL: {fileID: 1215094079972474, guid: e94ace5dbe41e884084eee46489f09fc,
+    type: 2}
+  HandPrefabR: {fileID: 1732812794204912, guid: d5f52100d102b554d9480578f101c33b,
+    type: 2}
+  HandPrefabHololens: {fileID: 1215094079972474, guid: e94ace5dbe41e884084eee46489f09fc,
+    type: 2}
   TextFieldForPlayerName: {fileID: 114177845651198468}
   NotSpeakingColor: {r: 1, g: 1, b: 1, a: 1}
   SpeakingColor: {r: 0.14775623, g: 0.77205884, b: 0.096507356, a: 1}

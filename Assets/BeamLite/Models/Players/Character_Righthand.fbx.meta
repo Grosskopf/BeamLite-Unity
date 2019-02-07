@@ -25,6 +25,10 @@ ModelImporter:
     100034: ZeigefingerL2
     100036: ZeigefingerL3
     100038: ZeigefingerL3_end
+    100040: KleinerfingerL1
+    100042: KleinerfingerL2
+    100044: KleinerfingerL3
+    100046: KleinerfingerL3_end
     400000: //RootNode
     400002: DaumenL1
     400004: DaumenL2
@@ -45,6 +49,10 @@ ModelImporter:
     400034: ZeigefingerL2
     400036: ZeigefingerL3
     400038: ZeigefingerL3_end
+    400040: KleinerfingerL1
+    400042: KleinerfingerL2
+    400044: KleinerfingerL3
+    400046: KleinerfingerL3_end
     4300000: Righthand
     7400000: RighthandArmature|Lefthandaction
     7400002: RighthandArmature|LefthandIdle

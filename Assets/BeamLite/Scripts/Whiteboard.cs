@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -23,14 +24,15 @@ public class Whiteboard : MonoBehaviour
 
     private int width, height; //width and height of Whiteboard
     private Color32[] resetColorArray; //an array for resetting the pixels of the texture, set in Start to resetColor
+    public bool saved = false;
 
     // Use this for initialization
     void Start()
     {
         Renderer renderer = GetComponent<Renderer>();
         // create a new 2d texture for the whiteboard
-        width = (int)(this.gameObject.transform.localScale.x * 1000);
-        height = (int)(this.gameObject.transform.localScale.y * 1000);
+        width = (int)(this.gameObject.transform.localScale.x * 700);
+        height = (int)(this.gameObject.transform.localScale.y * 700);
         this.layers = new Texture2D[] { new Texture2D(width, height), new Texture2D(width, height) };//first is smooth, second is rough
         renderer.material.SetTexture("_CleanTex", layers[0]);
         renderer.material.SetTexture("_RoughTex", layers[1]);
@@ -58,6 +60,24 @@ public class Whiteboard : MonoBehaviour
     }
 
     /// <summary>
+    /// saves the whiteboard
+    /// </summary>
+
+    public void Save()
+    {
+        byte[] bytes = layers[0].EncodeToPNG();
+        int number = 0;
+        while(File.Exists(Application.dataPath + "/../savedscreen_" + number + ".png"))
+        {
+            number += 1;
+        }
+        File.WriteAllBytes(Application.dataPath + "/../savedscreen_"+number+".png", bytes);
+
+
+        saved = true;
+    }
+
+    /// <summary>
     /// clears the whiteboard
     /// </summary>
     public void Clear()
@@ -66,6 +86,7 @@ public class Whiteboard : MonoBehaviour
         {
             layer.SetPixels32(resetColorArray);
             layer.Apply();
+            saved = false;
         }
     }
 
@@ -134,6 +155,7 @@ public class Whiteboard : MonoBehaviour
                 UndriedList.Clear();
                 //delete undried paint
                 layers[0].Apply();
+                saved = false;
                 layers[1].SetPixels32(resetColorArray);
                 layers[1].Apply();
 

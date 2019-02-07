@@ -14,8 +14,6 @@ public class NetworkPlayer : NetworkBehaviour
     [SyncVar]
     public Vector3 AlignmentTranslation;
 
-   
-
     [SyncVar]
     public float AlignmentRotation;
 
@@ -52,6 +50,13 @@ public class NetworkPlayer : NetworkBehaviour
 
     public float Shouldersize;
 
+    [SyncVar]
+
+    public int PoseRight;
+
+    [SyncVar]
+
+    public int PoseLeft;
 
     [SyncVar]
 
@@ -86,6 +91,7 @@ public class NetworkPlayer : NetworkBehaviour
     public GlobalSyncingManager GlobalSyncingManager;
     private GameObject Clock;
 
+    private int _leftpose=-1, _rightpose=-1;
 
 
     /// <summary>
@@ -148,8 +154,8 @@ public class NetworkPlayer : NetworkBehaviour
 
         if (_vrCameraRig)
         {
-            _viveControllerLeft = _vrCameraRig.GetComponent<SteamVR_ControllerManager>().left.transform.Find("tatzeRaccoonL");
-            _viveControllerRight = _vrCameraRig.GetComponent<SteamVR_ControllerManager>().right.transform.Find("tatzeRaccoonR");
+            _viveControllerLeft = _vrCameraRig.GetComponent<SteamVR_ControllerManager>().left.transform.Find("Lefthand");
+            _viveControllerRight = _vrCameraRig.GetComponent<SteamVR_ControllerManager>().right.transform.Find("Righthand");
 
             if (_viveControllerRight) CmdUpdateHandVisibilityRight(true);
             if (_viveControllerLeft) CmdUpdateHandVisibilityLeft(true);
@@ -355,9 +361,17 @@ public class NetworkPlayer : NetworkBehaviour
 
             if (_viveControllerLeft)
             {
-                Hand2.transform.position = _viveControllerRight.transform.position;
-                Hand2.transform.rotation = _viveControllerRight.transform.rotation;
+                Hand2.transform.position = _viveControllerLeft.transform.position;
+                Hand2.transform.rotation = _viveControllerLeft.transform.rotation;
             }
+        }
+        if (Avatar.GetComponent<AvatarController>().PoseL != PoseLeft)
+        {
+            Avatar.GetComponent<AvatarController>().PoseL = PoseLeft;
+        }
+        if (Avatar.GetComponent<AvatarController>().PoseR != PoseRight)
+        {
+            Avatar.GetComponent<AvatarController>().PoseR = PoseRight;
         }
     }
 

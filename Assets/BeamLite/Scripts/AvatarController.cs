@@ -28,6 +28,9 @@ public class AvatarController : MonoBehaviour {
     public Color SpeakingColor;
 
     public Texture2D[] possible_textures;
+
+    public int PoseL = -1, PoseR = -1;
+
     
     private Transform _HipTransform;
     private Transform _BellyTransform;
@@ -48,7 +51,6 @@ public class AvatarController : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
-
     }
 
     public void SetAvatar(int playerCounter, Utils.PlayerType playerType, string playerName, bool showHLAvatar = false)
@@ -58,12 +60,13 @@ public class AvatarController : MonoBehaviour {
         MarkerOffset = _networkPlayer.MarkerOffset;
         TextFieldForPlayerName.text = playerName;
 
+
         if (PlayerType == Utils.PlayerType.Vive)
         {
             if (showHLAvatar)
             {
-                Instantiate(ViveAvatar, gameObject.transform);
-                _body = Instantiate(BodyPrefab, gameObject.transform);
+                Instantiate(ViveAvatar, new Vector3(0,-0.4f,0),Quaternion.Euler(0,-90,0), gameObject.transform);
+                _body = Instantiate(BodyPrefab, new Vector3(0, -0.4f, 0), Quaternion.Euler(0, -90, 0), gameObject.transform);
 
                 _rightHand = Instantiate(HandPrefabR);
                 _rightHand.SetActive(false);
@@ -75,8 +78,8 @@ public class AvatarController : MonoBehaviour {
         {
             if (showHLAvatar)
             {
-                Instantiate(RiftAvatar, gameObject.transform);
-                _body = Instantiate(BodyPrefab, gameObject.transform);
+                Instantiate(RiftAvatar, new Vector3(0, -0.4f, 0), Quaternion.Euler(0, -90, 0), gameObject.transform);
+                _body = Instantiate(BodyPrefab, new Vector3(0, -0.4f, 0), Quaternion.Euler(0, -90, 0), gameObject.transform);
 
                 _rightHand = Instantiate(HandPrefabR);
                 _rightHand.SetActive(false);
@@ -89,8 +92,8 @@ public class AvatarController : MonoBehaviour {
         {
             if (showHLAvatar)
             {
-                Instantiate(HoloLensAvatar, gameObject.transform);
-                _body = Instantiate(BodyPrefab, gameObject.transform);
+                Instantiate(HoloLensAvatar, new Vector3(0, -0.4f, 0), Quaternion.Euler(0, -90, 0), gameObject.transform);
+                _body = Instantiate(BodyPrefab, new Vector3(0, -0.4f, 0), Quaternion.Euler(0, -90, 0), gameObject.transform);
 
                 _rightHand = Instantiate(HandPrefabHololens);
                 _rightHand.SetActive(false);
@@ -104,13 +107,15 @@ public class AvatarController : MonoBehaviour {
                 TextFieldForPlayerName.gameObject.transform.parent.gameObject.SetActive(false);
             }
         }
-
-        _HipTransform = _body.transform.Find("Armature/Beine/Hüfte").transform;
-        _BellyTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch").transform;
-        _BreastTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust").transform;
-        _ShoulderTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust/Schulter").transform;
-        _NeckTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust/Schulter/Hals").transform;
-        _bodyRenderer = _body.transform.Find("Body").GetComponent<Renderer>();
+        if (_body)
+        {
+            _HipTransform = _body.transform.Find("Armature/Beine/Hüfte").transform;
+            _BellyTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch").transform;
+            _BreastTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust").transform;
+            _ShoulderTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust/Schulter").transform;
+            _NeckTransform = _body.transform.Find("Armature/Beine/Hüfte/Bauch/Brust/Schulter/Hals").transform;
+            _bodyRenderer = _body.transform.Find("Body").GetComponent<Renderer>();
+        }
         //var comms = FindObjectOfType<DissonanceComms>();
         //comms.OnPlayerJoinedSession += Comms_OnPlayerJoinedSession;
     }
@@ -154,8 +159,8 @@ public class AvatarController : MonoBehaviour {
 
                 if (_body != null)
                 {
-                    this._body.transform.rotation = Quaternion.Euler(BodyPrefab.transform.rotation.eulerAngles.x, this.transform.rotation.eulerAngles.y, BodyPrefab.transform.rotation.eulerAngles.z);
-                    this._body.transform.position = this.transform.position + BodyPrefab.transform.localPosition;
+                    this._body.transform.rotation = Quaternion.Euler(BodyPrefab.transform.rotation.eulerAngles.x, this.transform.rotation.eulerAngles.y - 90, BodyPrefab.transform.rotation.eulerAngles.z);
+                    this._body.transform.position = this.transform.position + BodyPrefab.transform.localPosition+new Vector3(0,-0.4f,0);
                 }
 
                 if (_rightHand)
@@ -166,6 +171,21 @@ public class AvatarController : MonoBehaviour {
                         _rightHand.SetActive(true);
                         _rightHand.transform.position = LocalAlignmentTranslation + (Quaternion.Euler(0, -LocalAlignmentRotation, 0) * (_networkPlayer.Hand1.transform.position - MarkerOffset));
                         _rightHand.transform.rotation = Quaternion.Euler(0, -LocalAlignmentRotation, 0) * _networkPlayer.Hand1.transform.rotation;
+                        switch (PoseR)
+                        {
+                            case 0:
+                                _rightHand.transform.Find("Character_Righthand").GetComponent<Animator>().Play("RighthandArmature|RighthandIdle", 0, 0.0f);
+                                _rightHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                                break;
+                            case 1:
+                                _rightHand.transform.Find("Character_Righthand").GetComponent<Animator>().Play("RighthandArmature|RighthandGrab", 0, 0.0f);
+                                _rightHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                                break;
+                            case 2:
+                                _rightHand.transform.Find("Character_Righthand").GetComponent<Animator>().Play("RighthandArmature|RighthandPointing", 0, 0.0f);
+                                _rightHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = true;
+                                break;
+                        }
                     }
                     else
                     {
@@ -180,6 +200,21 @@ public class AvatarController : MonoBehaviour {
                         _leftHand.SetActive(true);
                         _leftHand.transform.position = LocalAlignmentTranslation + (Quaternion.Euler(0, -LocalAlignmentRotation, 0) * (_networkPlayer.Hand2.transform.position - MarkerOffset));
                         _leftHand.transform.rotation = Quaternion.Euler(0, -LocalAlignmentRotation, 0) * _networkPlayer.Hand2.transform.rotation;
+                        switch (PoseL)
+                        {
+                            case 0:
+                                _leftHand.transform.Find("Character_Lefthand").GetComponent<Animator>().Play("LefthandArmature|LefthandIdle", 0, 0.0f);
+                                _leftHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                                break;
+                            case 1:
+                                _leftHand.transform.Find("Character_Lefthand").GetComponent<Animator>().Play("LefthandArmature|Lefthandgrab", 0, 0.0f);
+                                _leftHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                                break;
+                            case 2:
+                                _leftHand.transform.Find("Character_Lefthand").GetComponent<Animator>().Play("LefthandArmature|LefthandPointing", 0, 0.0f);
+                                _leftHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = true;
+                                break;
+                        }
                     }
                     else
                     {
@@ -197,8 +232,8 @@ public class AvatarController : MonoBehaviour {
 
             if (_body != null)
             {
-                this._body.transform.rotation = Quaternion.Euler(BodyPrefab.transform.rotation.eulerAngles.x, this.transform.rotation.eulerAngles.y, BodyPrefab.transform.rotation.eulerAngles.z);
-                this._body.transform.position = this.transform.position + BodyPrefab.transform.localPosition;
+                this._body.transform.rotation = Quaternion.Euler(BodyPrefab.transform.rotation.eulerAngles.x, this.transform.rotation.eulerAngles.y-90, BodyPrefab.transform.rotation.eulerAngles.z);
+                this._body.transform.position = this.transform.position + BodyPrefab.transform.localPosition + new Vector3(0, -0.4f, 0);
             }
             if (_rightHand)
             {
@@ -207,6 +242,21 @@ public class AvatarController : MonoBehaviour {
                     _rightHand.SetActive(true);
                     _rightHand.transform.position = _networkPlayer.Hand1.transform.position;
                     _rightHand.transform.rotation = Quaternion.Euler(0, this.transform.rotation.eulerAngles.y, 0);
+                    switch (PoseR)
+                    {
+                        case 0:
+                            _rightHand.transform.Find("Character_Righthand").GetComponent<Animator>().Play("RighthandArmature|RighthandIdle", 0, 0.0f);
+                            _rightHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                            break;
+                        case 1:
+                            _rightHand.transform.Find("Character_Righthand").GetComponent<Animator>().Play("RighthandArmature|RighthandGrab", 0, 0.0f);
+                            _rightHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                            break;
+                        case 2:
+                            _rightHand.transform.Find("Character_Righthand").GetComponent<Animator>().Play("RighthandArmature|RighthandPointing", 0, 0.0f);
+                            _rightHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = true;
+                            break;
+                    }
                 }
                 else
                 {
@@ -221,6 +271,21 @@ public class AvatarController : MonoBehaviour {
                     _leftHand.SetActive(true);
                     _leftHand.transform.position = _networkPlayer.Hand2.transform.position;
                     _leftHand.transform.rotation = Quaternion.Euler(0, this.transform.rotation.eulerAngles.y, 0);
+                    switch (PoseL)
+                    {
+                        case 0:
+                            _leftHand.transform.Find("Character_Lefthand").GetComponent<Animator>().Play("LefthandArmature|LefthandIdle", 0, 0.0f);
+                            _leftHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                            break;
+                        case 1:
+                            _leftHand.transform.Find("Character_Lefthand").GetComponent<Animator>().Play("LefthandArmature|Lefthandgrab", 0, 0.0f);
+                            _leftHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = false;
+                            break;
+                        case 2:
+                            _leftHand.transform.Find("Character_Lefthand").GetComponent<Animator>().Play("LefthandArmature|LefthandPointing", 0, 0.0f);
+                            _leftHand.transform.Find("Cube").GetComponent<MeshRenderer>().enabled = true;
+                            break;
+                    }
                 }
                 else
                 {
